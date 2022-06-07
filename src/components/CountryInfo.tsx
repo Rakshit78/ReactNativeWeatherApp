@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 const CountryInfo: React.FC = ({ route }: any) => {
   const [details, setDetails] = useState<any[]>([]);
-  const [list, setList] = useState<any[]>([]);
+  const [list, setList] = useState<any[]>({});
   const [loading, setLoading] = useState(false);
   const [load, setLoad] = useState(false);
   const [err, seterr] = useState(false);
@@ -38,7 +38,9 @@ const CountryInfo: React.FC = ({ route }: any) => {
   const getdata = async () => {
     try {
       setLoad(true);
-      const url = `http://api.weatherstack.com/current?access_key=67579492159a1332be2171323dc08001&query=india`;
+      const url = `http://api.weatherstack.com/current?access_key=67579492159a1332be2171323dc08001&query=${
+        details ? details[0].capital : ''
+      }`;
       const res = await fetch(url);
       const data = await res.json();
       setList(data.current);
@@ -53,6 +55,8 @@ const CountryInfo: React.FC = ({ route }: any) => {
     setModal(true);
     getdata();
   };
+  const icon = list?.weather_icons;
+
   if (err) {
     return (
       <View>
@@ -96,21 +100,28 @@ const CountryInfo: React.FC = ({ route }: any) => {
         </View>
       </View>
       <Modal visible={modal}>
-        <View
-          style={{
-            padding: 20,
-            margin: 50,
-            backgroundColor: '#d5d5d5',
-            flex: 1,
-            position: 'relative',
-          }}
-        >
-          <Image source={{ uri: list?.weather_icons[0] }} />
-          <Text style={{ fontSize: 24 }}>Temperature:{list?.temperature}</Text>
-
-          <Text style={{ fontSize: 24 }}>Wind Speed :{list?.wind_speed}</Text>
-          <Text style={{ fontSize: 24 }}>Precip:{list?.precip}</Text>
-        </View>
+        {load ? (
+          <ActivityIndicator />
+        ) : (
+          <View
+            style={{
+              padding: 20,
+              margin: 50,
+              backgroundColor: '#d5d5d5',
+              flex: 1,
+              position: 'relative',
+            }}
+          >
+            <Text style={{ fontSize: 24 }}>
+              Temperature:{list?.temperature}
+            </Text>
+            <Text style={{ fontSize: 24 }}>Wind Speed :{list?.wind_speed}</Text>
+            <Text style={{ fontSize: 24 }}>Precip:{list?.precip}</Text>
+            <Text style={{ fontSize: 24 }}>
+              Werther Icon:{list?.weather_icons}
+            </Text>
+          </View>
+        )}
         <View style={{ position: 'absolute', right: 60, top: 60 }}>
           <Pressable onPress={() => setModal(false)}>
             <Text>X</Text>
